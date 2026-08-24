@@ -19,7 +19,7 @@ jobs:
           rm -rf "$SCRATCH"
           mkdir -p "$SCRATCH"
           (cd "$SCRATCH" && npx --yes create-meith@latest sync-tmp --no-git)
-          rsync -a --delete --exclude='.github/workflows/sync.yml' "$SCRATCH/sync-tmp/" ./
+          rsync -a --delete --exclude='/.git/' --exclude='.github/workflows/sync.yml' "$SCRATCH/sync-tmp/" ./
           rm -rf "$SCRATCH"
 
       - name: Prepend the template banner create-meith knows nothing about
