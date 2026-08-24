@@ -1,3 +1,9 @@
+> **You got this file by clicking "Use this template."** GitHub already
+> created this repository and its first commit for you, so the "push this
+> repository to GitHub" step below is already done — start at step 2:
+> point Coolify at it. Full walkthrough:
+> https://www.meith.dev/docs/quickstart#2-create-your-board
+
 # my-board
 
 A forum, built on [Meith](https://github.com/meith-dev/meith).
