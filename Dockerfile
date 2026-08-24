@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7-labs
 # check=skip=InvalidDefaultArgInFrom
-# my-board's deploy image.
+# sync-tmp's deploy image.
 #
 # FROM the published framework base image — deps + framework layers only,
 # locked to this exact release (see the meith repository's

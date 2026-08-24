@@ -1,5 +1,5 @@
 {
-  "name": "my-board",
+  "name": "sync-tmp",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,9 +10,9 @@
     "community": "community"
   },
   "dependencies": {
-    "@meith/web": "0.17.0",
-    "@meith/cli": "0.17.0",
-    "@meith/theme-default": "0.17.0"
+    "@meith/web": "0.17.1",
+    "@meith/cli": "0.17.1",
+    "@meith/theme-default": "0.17.1"
   },
   "engines": {
     "node": ">=22"

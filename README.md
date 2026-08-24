@@ -4,7 +4,7 @@
 > point Coolify at it. Full walkthrough:
 > https://www.meith.dev/docs/quickstart#2-create-your-board
 
-# my-board
+# sync-tmp
 
 A forum, built on [Meith](https://github.com/meith-dev/meith).
 
@@ -18,7 +18,7 @@ one value only you know:
 
 1. **Push this repository to GitHub.** `.github/workflows/build.yml` builds
    `Dockerfile` on every push to `main` and pushes the result to your own
-   GitHub Container Registry, `ghcr.io/<you>/my-board` — using only the
+   GitHub Container Registry, `ghcr.io/<you>/sync-tmp` — using only the
    `GITHUB_TOKEN` every GitHub Actions run already carries. No secret to
    add, no registry account beyond the GitHub account you already have.
 
@@ -34,7 +34,7 @@ one value only you know:
    `TICK_SECRET` and the database password, generated on the first deploy
    and never typed in. The one thing Coolify cannot generate is the image
    step 1 just pushed: set `MEITH_IMAGE` in the resource's own environment
-   to the value that run's Summary printed — `ghcr.io/<you>/my-board:latest`
+   to the value that run's Summary printed — `ghcr.io/<you>/sync-tmp:latest`
    (or a commit sha, once you want a pin that only moves when you say so —
    `docker-compose.yml` refuses to start without this set, with a message saying
    why).
@@ -56,7 +56,7 @@ rather not use GitHub Actions for the build — push the result wherever
 `docker-compose.yml`'s `MEITH_IMAGE` can reach.
 
 ```sh
-docker build --build-arg MEITH_VERSION=$(node -p "require('./package.json').dependencies['@meith/web']") -t my-board .
+docker build --build-arg MEITH_VERSION=$(node -p "require('./package.json').dependencies['@meith/web']") -t sync-tmp .
 ```
 
 **Without a panel**: [docs/self-hosting.md](https://github.com/meith-dev/meith/blob/main/docs/self-hosting.md)
