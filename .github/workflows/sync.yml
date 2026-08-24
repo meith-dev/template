@@ -15,10 +15,12 @@ jobs:
 
       - name: Re-scaffold from the latest create-meith and copy the result over this repo
         run: |
-          npx --yes create-meith@latest sync-tmp --no-git
-          rm -rf sync-tmp/.git
-          rsync -a --delete --exclude='.github/workflows/sync.yml' sync-tmp/ ./
-          rm -rf sync-tmp
+          SCRATCH="$RUNNER_TEMP/create-meith-sync"
+          rm -rf "$SCRATCH"
+          mkdir -p "$SCRATCH"
+          (cd "$SCRATCH" && npx --yes create-meith@latest sync-tmp --no-git)
+          rsync -a --delete --exclude='.github/workflows/sync.yml' "$SCRATCH/sync-tmp/" ./
+          rm -rf "$SCRATCH"
 
       - name: Prepend the template banner create-meith knows nothing about
         run: |
