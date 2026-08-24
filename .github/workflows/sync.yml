@@ -1,0 +1,43 @@
+name: Sync with create-meith
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Re-scaffold from meith-dev/meith's latest release and copy the result over this repo
+        run: |
+          git clone --depth 1 --branch release https://github.com/meith-dev/meith.git /tmp/meith-release
+          npx --yes tsx /tmp/meith-release/packages/create-meith/src/bin.ts sync-tmp --no-git
+          rm -rf /tmp/meith-release
+          rsync -a --delete --exclude='.github/workflows/sync.yml' sync-tmp/ ./
+          rm -rf sync-tmp
+
+      - name: Prepend the template banner create-meith knows nothing about
+        run: |
+          {
+            echo '> **You got this file by clicking "Use this template."** GitHub already'
+            echo '> created this repository and its first commit for you, so the "push this'
+            echo '> repository to GitHub" step below is already done — start at step 2:'
+            echo '> point Coolify at it. Full walkthrough:'
+            echo '> https://www.meith.dev/docs/quickstart#2-create-your-board'
+            echo
+            cat README.md
+          } > README.md.new
+          mv README.md.new README.md
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet || git commit -m 'Sync scaffold with the latest meith-dev/meith release'
+          git push
