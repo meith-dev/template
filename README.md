@@ -6,7 +6,7 @@
 
 # my-board
 
-A forum, built on [Meith](https://github.com/meith-dev/meith).
+A forum, built on [Meith](undefined).
 
 ## Deploy
 
@@ -34,14 +34,17 @@ one value only you know:
    `TICK_SECRET` and the database password, generated on the first deploy
    and never typed in. The one thing Coolify cannot generate is the image
    step 1 just pushed: set `MEITH_IMAGE` in the resource's own environment
-   to the value that run's Summary printed — `ghcr.io/<you>/my-board:latest`
-   (or a commit sha, once you want a pin that only moves when you say so —
-   `docker-compose.yml` refuses to start without this set, with a message saying
-   why).
+   to the value that run's Summary printed — `ghcr.io/<you>/my-board:${{ github.sha }}`,
+   a pin that only ever names that one build (`docker-compose.yml` refuses
+   to start without this set, with a message saying why). The same run also
+   pushes `ghcr.io/<you>/my-board:latest` as a convenience for a quick manual
+   pull, but it moves on every push to `main` — set it on the resource and a
+   later, unrelated redeploy can pull whatever `main` most recently built,
+   commit still mid-feature included.
 
 3. **Deploy, then `/install` on your own domain.** Coolify issues the
    certificate; the installer from there is the one
-   [docs/quickstart.md](https://github.com/meith-dev/meith/blob/main/docs/quickstart.md#4-run-the-installer)
+   [docs/quickstart.md](undefined/blob/main/docs/quickstart.md#4-run-the-installer)
    walks through, screen for screen. It seals itself when it finishes, and
    `/install` answers 404 from then on — run it **against the database you
    are going to keep**. Every push to `main` after this rebuilds the
@@ -59,7 +62,7 @@ rather not use GitHub Actions for the build — push the result wherever
 docker build --build-arg MEITH_VERSION=$(node -p "require('./package.json').dependencies['@meith/web']") -t my-board .
 ```
 
-**Without a panel**: [docs/self-hosting.md](https://github.com/meith-dev/meith/blob/main/docs/self-hosting.md)
+**Without a panel**: [docs/self-hosting.md](undefined/blob/main/docs/self-hosting.md)
 is the same four containers by hand — your own `.env`, a reverse proxy you
 already run, no Coolify. `Dockerfile` and `docker-compose.yml` here are this
 board's own version of exactly that shape.
@@ -87,8 +90,8 @@ With no `DATABASE_URL`, the board runs on deterministic in-memory sample data �
 enough to click through every reading surface. Posting needs a database:
 
 ```sh
-npm run forum -- migrate
-npm run forum -- user:create --admin
+npm run community -- migrate
+echo "<password>" | npm run community -- user:create --username <name> --email <address> --group administrators
 ```
 
 ## Configuring
@@ -99,24 +102,40 @@ npm run forum -- user:create --admin
 - **`/admin`** — settings, forums, groups, members, themes, maintenance. An
   administrator re-enters their password to get in, and again for anything
   destructive.
-- **`npm run forum -- --help`** — the operator CLI. Everything the panel does
+- **`npm run community -- --help`** — the operator CLI. Everything the panel does
   and a few things it cannot, without a browser.
 
 ## Upgrading
 
 ```sh
-npm install @meith/web@latest @meith/cli@latest
-git commit -am "Upgrade @meith/web and @meith/cli"
+npm install --save-exact @meith/web@latest @meith/cli@latest @meith/theme-default@latest
+npm install --save-exact next@$(node -p "require('./node_modules/@meith/web/package.json').dependencies.next")
+git commit -am "Upgrade Meith and the Next.js version it builds with"
 git push
 ```
 
-That one `package.json` change is the whole pin: `Dockerfile`'s own
+The second command is not optional. This board pins `next` itself, and
+nothing bumps it for you: upgrading only the `@meith/*` packages leaves the
+board's own pin on the old Next while `@meith/web` depends on the new one,
+which npm resolves by installing both — the build then runs on one version
+while everything reading `package.json` sees the other. Reading the version
+out of the freshly installed `@meith/web` is what keeps the two the same
+without anybody having to know the number.
+
+That `package.json` change is the whole pin: `Dockerfile`'s own
 `FROM` line takes the version as a build argument, and
 `.github/workflows/build.yml` reads it straight out of `package.json`'s
 own `@meith/web` dependency when it rebuilds — nothing in `Dockerfile`
-itself to keep in sync by hand. Once the rebuilt image is deployed, run
-`npm run forum -- upgrade` against it for the plugin migrations — see
-[the operator CLI](https://github.com/meith-dev/meith/blob/main/docs/operating.md#the-operator-cli)
+itself to keep in sync by hand. `--save-exact` matters: npm's default
+`save-prefix` is `^`, and a caret range is not a legal Docker image tag —
+without it, this exact command would write `"^0.18.0"` and the next build
+would fail with `invalid reference format` instead of building. This
+project's own `.npmrc` sets `save-exact=true` for the same reason, so an
+`npm install` of anything else here — a plugin, say — stays pinned too; the
+build workflow also refuses to build from anything but an exact version, as
+a second line of defense. Once the rebuilt image is deployed, run
+`npm run community -- upgrade` against it for the plugin migrations — see
+[the operator CLI](undefined/blob/main/docs/operating.md#the-operator-cli)
 for running it against this deployment.
 
 Migrations are forward-only. Recovery is by restore, so take a backup first —

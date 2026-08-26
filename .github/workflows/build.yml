@@ -32,6 +32,10 @@ jobs:
         run: |
           IMAGE=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           MEITH_VERSION=$(node -p "require('./package.json').dependencies['@meith/web']")
+          if ! echo "$MEITH_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::@meith/web in package.json is '$MEITH_VERSION', not an exact X.Y.Z version — that is not a legal Docker image tag. Upgrade with \`npm install --save-exact\` (see README.md, Upgrading) so this dependency always resolves to one."
+            exit 1
+          fi
           docker build --build-arg MEITH_VERSION="$MEITH_VERSION" -t "$IMAGE:${{ github.sha }}" -t "$IMAGE:latest" .
           docker push "$IMAGE:${{ github.sha }}"
           docker push "$IMAGE:latest"
@@ -47,11 +51,14 @@ jobs:
             echo
             echo "Paste this into the MEITH_IMAGE variable on the Coolify resource:"
             echo
-            echo "    $IMAGE:latest"
-            echo
-            echo "Once you want a pin that only moves when you say so:"
-            echo
             echo "    $IMAGE:${{ github.sha }}"
+            echo
+            echo "This tag names this run's build and nothing else, ever. $IMAGE:latest"
+            echo "also pushed, as a convenience for a quick manual pull; it moves on"
+            echo "every push to main, so any later Coolify redeploy — for any reason,"
+            echo "not necessarily this one — pulls whatever main most recently built,"
+            echo "including a commit still mid-feature. Prefer the sha above for the"
+            echo "value you actually set on the resource."
             echo
             echo "## One-time: make the package public"
             echo
