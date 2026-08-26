@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          token: ${{ secrets.TEMPLATE_SYNC_TOKEN || github.token }}
 
       - name: Re-scaffold from the latest create-meith and copy the result over this repo
         run: |
@@ -36,6 +38,31 @@ jobs:
           } > README.md.new
           mv README.md.new README.md
 
+      - name: Set aside workflow changes this run is not allowed to push
+        id: workflows
+        env:
+          SYNC_TOKEN: ${{ secrets.TEMPLATE_SYNC_TOKEN }}
+        run: |
+          if [ -n "$SYNC_TOKEN" ]; then
+            echo "held=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          CHANGED=$(git status --porcelain -- .github/workflows | awk '{print $NF}')
+          if [ -z "$CHANGED" ]; then
+            echo "held=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git checkout -- .github/workflows 2>/dev/null || true
+          git clean -fdq -- .github/workflows
+
+          {
+            echo 'held<<EOF'
+            echo "$CHANGED"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Commit if anything changed
         run: |
           git config user.name 'github-actions[bot]'
@@ -43,3 +70,31 @@ jobs:
           git add -A
           git diff --cached --quiet || git commit -m 'Sync scaffold with create-meith@latest'
           git push
+
+      - name: Report the workflow files this run could not carry
+        if: ${{ steps.workflows.outputs.held != '' }}
+        run: |
+          {
+            echo '## Scaffold synced, workflow files held back'
+            echo
+            echo 'These files differ from the current scaffold and were left as they are:'
+            echo
+            echo '```'
+            echo '${{ steps.workflows.outputs.held }}'
+            echo '```'
+            echo
+            echo 'GitHub refuses a push that touches `.github/workflows/` when it is made'
+            echo 'with the automatic `GITHUB_TOKEN`. Everything else in this sync was'
+            echo 'pushed, so the board files above are current and these are not.'
+            echo
+            echo 'To let this job carry them too, add a repository secret named'
+            echo '`TEMPLATE_SYNC_TOKEN` holding a token that may write workflow files — a'
+            echo 'fine-grained PAT with **Contents: write** and **Workflows: write** on'
+            echo 'this repository, or a classic PAT with the `workflow` scope. This job'
+            echo 'picks it up automatically once it exists, and this step stops firing.'
+            echo
+            echo 'Until then, copy the files above out of `npx create-meith@latest` by hand.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "::error::Scaffold synced, but these workflow files were held back and are now stale: ${{ steps.workflows.outputs.held }}. See the job summary for the one-time fix."
+          exit 1
