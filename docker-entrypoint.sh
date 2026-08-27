@@ -3,7 +3,7 @@
 #
 # "web" (the default) runs the board; "migrate" applies the schema and
 # exits. There is no "worker" role in this image: @meith/worker is not
-# published, so nothing here can run it — docker-compose.yml's own `worker`
+# published, so nothing here can run it — docker-compose.yaml's own `worker`
 # service drives the tick a different way, calling this image's web role
 # over HTTP instead of running as a role of this image.
 set -e

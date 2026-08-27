@@ -17,7 +17,7 @@
 # docs/contributing/development.md, "Consuming the board from a workspace") — it needs
 # the full, un-pruned node_modules tree this board installed, not what Next
 # traced as reachable from the web server alone. The tick itself is driven
-# by docker-compose.yml's own `worker` service — a lightweight loop against
+# by docker-compose.yaml's own `worker` service — a lightweight loop against
 # /api/system/tick, not a compiled worker process, because @meith/worker is
 # not published (see the meith repository's docs/contributing/release.md).
 ARG MEITH_VERSION

@@ -11,7 +11,7 @@ A forum, built on [Meith](https://github.com/meith-dev/meith).
 ## Deploy
 
 Nothing here builds on your own server — a 2 GB VPS OOMs on a Next.js build,
-which is the whole reason `Dockerfile`, `docker-compose.yml` and
+which is the whole reason `Dockerfile`, `docker-compose.yaml` and
 `.github/workflows/build.yml` exist: something else builds the image, the
 server only ever pulls one. Three steps, nothing to configure by hand beyond
 one value only you know:
@@ -22,25 +22,28 @@ one value only you know:
    `GITHUB_TOKEN` every GitHub Actions run already carries. No secret to
    add, no registry account beyond the GitHub account you already have.
 
-   Open the run under the repository's **Actions** tab once it finishes —
-   its **Summary** prints the two things left: the exact image to paste
-   into step 2 below, and a direct link to the one-time step of making the
-   package public. It starts **private**, and Coolify's pull fails with an
-   authentication error no operator can act on until that is done.
+   That build is the thing step 2 waits on: open the repository's
+   **Actions** tab and let the run finish, because its **Summary** is where
+   the exact image to paste into step 2 comes from. The Summary also links
+   the package itself, to check it is public — a build from a public
+   repository usually lands public already, and a private one fails
+   Coolify's pull with an authentication error no operator can act on.
 
-2. **Point [Coolify](https://coolify.io) at `docker-compose.yml`** — a Docker
-   Compose resource, this repository as its source. `docker-compose.yml` already
-   carries Coolify's own "magic variables" for `AUTH_SECRET`,
-   `TICK_SECRET` and the database password, generated on the first deploy
-   and never typed in. The one thing Coolify cannot generate is the image
-   step 1 just pushed: set `MEITH_IMAGE` in the resource's own environment
-   to the value that run's Summary printed — `ghcr.io/<you>/my-board:${{ github.sha }}`,
-   a pin that only ever names that one build (`docker-compose.yml` refuses
-   to start without this set, with a message saying why). The same run also
-   pushes `ghcr.io/<you>/my-board:latest` as a convenience for a quick manual
-   pull, but it moves on every push to `main` — set it on the resource and a
-   later, unrelated redeploy can pull whatever `main` most recently built,
-   commit still mid-feature included.
+2. **Point [Coolify](https://coolify.io) at `docker-compose.yaml`** — a
+   **Public Git repository** resource with **Docker Compose** as its build
+   pack, this repository as its source. The name is Coolify's own default,
+   so its **Compose file** field is already right when the form opens, and
+   the file already carries Coolify's own "magic variables" for
+   `AUTH_SECRET`, `TICK_SECRET` and the database password, generated on
+   the first deploy and never typed in. The one thing Coolify cannot
+   generate is the image step 1 just pushed: set `MEITH_IMAGE` in the
+   resource's own environment to one of the two values that run's Summary
+   printed (`docker-compose.yaml` refuses to start without it, with a
+   message saying why). `ghcr.io/<you>/my-board:${{ github.sha }}` names
+   that one build and nothing else, ever; `ghcr.io/<you>/my-board:latest`
+   follows `main` instead, so installing a plugin later is a push and a
+   **Redeploy** — the trade the quickstart takes, at the cost of an
+   unrelated redeploy pulling whatever `main` most recently built.
 
 3. **Deploy, then `/install` on your own domain.** Coolify issues the
    certificate; the installer from there is the one
@@ -56,7 +59,7 @@ build side of this, for a board of any size.
 
 **Building it yourself**: works on any machine with Docker, if you would
 rather not use GitHub Actions for the build — push the result wherever
-`docker-compose.yml`'s `MEITH_IMAGE` can reach.
+`docker-compose.yaml`'s `MEITH_IMAGE` can reach.
 
 ```sh
 docker build --build-arg MEITH_VERSION=$(node -p "require('./package.json').dependencies['@meith/web']") -t my-board .
@@ -64,14 +67,14 @@ docker build --build-arg MEITH_VERSION=$(node -p "require('./package.json').depe
 
 **Without a panel**: [docs/getting-started/deployment/docker-compose.md](https://github.com/meith-dev/meith/blob/main/docs/getting-started/deployment/docker-compose.md)
 is the same four containers by hand — your own `.env`, a reverse proxy you
-already run, no Coolify. `Dockerfile` and `docker-compose.yml` here are this
+already run, no Coolify. `Dockerfile` and `docker-compose.yaml` here are this
 board's own version of exactly that shape.
 
 Two things nothing configures for you:
 
 - **Mail.** Until `MAIL_DRIVER` and its three settings exist, every message is
   written to the log and delivered to nobody, so password reset fails silently.
-- **The tick.** `docker-compose.yml`'s `worker` service drives it here — a small
+- **The tick.** `docker-compose.yaml`'s `worker` service drives it here — a small
   loop calling `/api/system/tick` once a minute, since `@meith/web`'s own
   worker package is not something a board outside the meith monorepo can
   depend on yet. Deploy some other way and something still has to call that

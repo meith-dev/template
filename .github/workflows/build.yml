@@ -49,20 +49,26 @@ jobs:
           {
             echo "## Deploy this image"
             echo
-            echo "Paste this into the MEITH_IMAGE variable on the Coolify resource:"
+            echo "Either of these goes in the MEITH_IMAGE variable on the Coolify"
+            echo "resource:"
             echo
             echo "    $IMAGE:${{ github.sha }}"
             echo
-            echo "This tag names this run's build and nothing else, ever. $IMAGE:latest"
-            echo "also pushed, as a convenience for a quick manual pull; it moves on"
-            echo "every push to main, so any later Coolify redeploy — for any reason,"
-            echo "not necessarily this one — pulls whatever main most recently built,"
-            echo "including a commit still mid-feature. Prefer the sha above for the"
-            echo "value you actually set on the resource."
+            echo "    $IMAGE:latest"
             echo
-            echo "## One-time: make the package public"
+            echo "The first names this run's build and nothing else, ever: nothing"
+            echo "moves under you, and an upgrade is you editing this variable."
             echo
-            echo "This package starts private. Coolify's pull fails until you visit"
-            echo "$PKG_URL and change its visibility — **Package settings** →"
-            echo "**Change visibility** → **Public**."
+            echo "The second follows main — every push rebuilds it and Coolify's next"
+            echo "Redeploy picks that build up, a commit still mid-feature included."
+            echo "That is the trade the quickstart takes while a board is young and"
+            echo "still gaining plugins: installing one is a push and a Redeploy, with"
+            echo "nothing on the resource to edit."
+            echo
+            echo "## One-time: check the package is public"
+            echo
+            echo "Coolify can only pull a public package, and this one may already be"
+            echo "one — a build from a public repository usually lands public. Open"
+            echo "$PKG_URL: if it does not already say Public, change it there —"
+            echo "**Package settings** → **Change visibility** → **Public**."
           } >> "$GITHUB_STEP_SUMMARY"
