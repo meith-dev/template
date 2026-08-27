@@ -76,9 +76,9 @@ services:
         condition: service_completed_successfully
 
   # @meith/worker is not published (see the meith repository's
-  # docs/release.md), so there is no compiled worker binary a scaffolded
+  # docs/contributing/release.md), so there is no compiled worker binary a scaffolded
   # board can run — this drives the tick the alternative way the meith
-  # repository documents in docs/self-hosting.md, "Running the tick without
+  # repository documents in docs/getting-started/deployment/docker-compose.md, "Running the tick without
   # a second set of credentials": a small loop calling /api/system/tick.
   worker:
     image: alpine:3.24@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b

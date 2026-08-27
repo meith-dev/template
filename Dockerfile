@@ -4,7 +4,7 @@
 #
 # FROM the published framework base image — deps + framework layers only,
 # locked to this exact release (see the meith repository's
-# docs/self-hosting.md, "Custom boards", and docker/Dockerfile.base for what
+# docs/getting-started/deployment/docker-compose.md, "Custom boards", and docker/Dockerfile.base for what
 # it is and is not). This board's own Dockerfile only ever installs its own
 # delta on top of it — a new plugin's own dependency, typically nothing more
 # — which is what keeps a rebuild after `npm install some-plugin` a matter
@@ -14,12 +14,12 @@
 # to Next's own standalone output. The migrate role below runs `community
 # migrate`, and `community` materializes @meith/cli's sources and runs them
 # with tsx at the moment it runs (see the meith repository's
-# docs/development.md, "Consuming the board from a workspace") — it needs
+# docs/contributing/development.md, "Consuming the board from a workspace") — it needs
 # the full, un-pruned node_modules tree this board installed, not what Next
 # traced as reachable from the web server alone. The tick itself is driven
 # by docker-compose.yml's own `worker` service — a lightweight loop against
 # /api/system/tick, not a compiled worker process, because @meith/worker is
-# not published (see the meith repository's docs/release.md).
+# not published (see the meith repository's docs/contributing/release.md).
 ARG MEITH_VERSION
 FROM ghcr.io/meith-dev/meith-base:${MEITH_VERSION} AS deps
 WORKDIR /board
@@ -44,7 +44,7 @@ ENV NODE_ENV=production
 # persists into every container started from this image afterward, and this
 # Dockerfile has no later stage to reset it in (see "Two stages, not three"
 # above). The build needs neither a database nor a production secret (see
-# the meith repository's docs/development.md, "Fixture mode"), but baking
+# the meith repository's docs/contributing/development.md, "Fixture mode"), but baking
 # DATA_SOURCE=fixture into the image itself would silently force fixture
 # mode — and with it the in-memory queue driver — at runtime too, no matter
 # what DATABASE_URL an operator supplies to `docker run`.

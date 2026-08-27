@@ -44,7 +44,7 @@ one value only you know:
 
 3. **Deploy, then `/install` on your own domain.** Coolify issues the
    certificate; the installer from there is the one
-   [docs/quickstart.md](https://github.com/meith-dev/meith/blob/main/docs/quickstart.md#4-run-the-installer)
+   [docs/getting-started/deployment/coolify.md](https://github.com/meith-dev/meith/blob/main/docs/getting-started/deployment/coolify.md#4-run-the-installer)
    walks through, screen for screen. It seals itself when it finishes, and
    `/install` answers 404 from then on — run it **against the database you
    are going to keep**. Every push to `main` after this rebuilds the
@@ -62,7 +62,7 @@ rather not use GitHub Actions for the build — push the result wherever
 docker build --build-arg MEITH_VERSION=$(node -p "require('./package.json').dependencies['@meith/web']") -t my-board .
 ```
 
-**Without a panel**: [docs/self-hosting.md](https://github.com/meith-dev/meith/blob/main/docs/self-hosting.md)
+**Without a panel**: [docs/getting-started/deployment/docker-compose.md](https://github.com/meith-dev/meith/blob/main/docs/getting-started/deployment/docker-compose.md)
 is the same four containers by hand — your own `.env`, a reverse proxy you
 already run, no Coolify. `Dockerfile` and `docker-compose.yml` here are this
 board's own version of exactly that shape.
@@ -82,12 +82,15 @@ Two things nothing configures for you:
 
 ```sh
 npm install
-cp .env.example .env.local
 npm run dev
 ```
 
-With no `DATABASE_URL`, the board runs on deterministic in-memory sample data —
-enough to click through every reading surface. Posting needs a database:
+No environment file, no database: with no `DATABASE_URL` the board serves
+deterministic in-memory sample data, which is enough to click through every
+reading surface.
+
+Posting needs Postgres. Copy `.env.example` to `.env.local`, set
+`DATABASE_URL` and the two secrets in it, then:
 
 ```sh
 npm run community -- migrate
@@ -135,7 +138,7 @@ project's own `.npmrc` sets `save-exact=true` for the same reason, so an
 build workflow also refuses to build from anything but an exact version, as
 a second line of defense. Once the rebuilt image is deployed, run
 `npm run community -- upgrade` against it for the plugin migrations — see
-[the operator CLI](https://github.com/meith-dev/meith/blob/main/docs/operating.md#the-operator-cli)
+[the operator CLI](https://github.com/meith-dev/meith/blob/main/docs/guides/operations/operating.md#the-operator-cli)
 for running it against this deployment.
 
 Migrations are forward-only. Recovery is by restore, so take a backup first —
