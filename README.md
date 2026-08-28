@@ -1,10 +1,4 @@
-> **You got this file by clicking "Use this template."** GitHub already
-> created this repository and its first commit for you, so the "push this
-> repository to GitHub" step below is already done — start at step 2:
-> point Coolify at it. Full walkthrough:
-> https://www.meith.dev/docs/quickstart#2-create-your-board
-
-# my-board
+# meith-board
 
 A forum, built on [Meith](https://github.com/meith-dev/meith).
 
@@ -18,7 +12,7 @@ one value only you know:
 
 1. **Push this repository to GitHub.** `.github/workflows/build.yml` builds
    `Dockerfile` on every push to `main` and pushes the result to your own
-   GitHub Container Registry, `ghcr.io/<you>/my-board` — using only the
+   GitHub Container Registry, `ghcr.io/<you>/meith-board` — using only the
    `GITHUB_TOKEN` every GitHub Actions run already carries. No secret to
    add, no registry account beyond the GitHub account you already have.
 
@@ -39,8 +33,8 @@ one value only you know:
    generate is the image step 1 just pushed: set `MEITH_IMAGE` in the
    resource's own environment to one of the two values that run's Summary
    printed (`docker-compose.yaml` refuses to start without it, with a
-   message saying why). `ghcr.io/<you>/my-board:${{ github.sha }}` names
-   that one build and nothing else, ever; `ghcr.io/<you>/my-board:latest`
+   message saying why). `ghcr.io/<you>/meith-board:${{ github.sha }}` names
+   that one build and nothing else, ever; `ghcr.io/<you>/meith-board:latest`
    follows `main` instead, so installing a plugin later is a push and a
    **Redeploy** — the trade the quickstart takes, at the cost of an
    unrelated redeploy pulling whatever `main` most recently built.
@@ -62,7 +56,7 @@ rather not use GitHub Actions for the build — push the result wherever
 `docker-compose.yaml`'s `MEITH_IMAGE` can reach.
 
 ```sh
-docker build --build-arg MEITH_VERSION=$(node -p "require('./package.json').dependencies['@meith/web']") -t my-board .
+docker build --build-arg MEITH_VERSION=$(node -p "require('./package.json').dependencies['@meith/web']") -t meith-board .
 ```
 
 **Without a panel**: [docs/getting-started/deployment/docker-compose.md](https://github.com/meith-dev/meith/blob/main/docs/getting-started/deployment/docker-compose.md)
@@ -127,6 +121,13 @@ which npm resolves by installing both — the build then runs on one version
 while everything reading `package.json` sees the other. Reading the version
 out of the freshly installed `@meith/web` is what keeps the two the same
 without anybody having to know the number.
+
+This upgrade is deliberate and manual for that reason: `next` and
+`@meith/web` move together or not at all. What *is* kept current for you is
+this repository's own GitHub Actions — `.github/dependabot.yml` opens a
+weekly pull request bumping the actions pinned in
+`.github/workflows/build.yml`, which is a safe, independent update the two
+commands above never touch.
 
 That `package.json` change is the whole pin: `Dockerfile`'s own
 `FROM` line takes the version as a build argument, and

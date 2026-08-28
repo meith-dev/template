@@ -1,4 +1,4 @@
-# my-board, deployed by Coolify — the same shape as the meith repository's own
+# meith-board, deployed by Coolify — the same shape as the meith repository's own
 # docker/compose.coolify.yml: db, migrate, web, worker. See README.md for
 # the three-step deploy story this file is the last step of.
 #
@@ -31,7 +31,7 @@ services:
   # Runs to completion, then exits. web waits for it, so the schema is
   # always applied before the first request rather than racing it.
   migrate:
-    image: ${MEITH_IMAGE:?set this to the image the build workflow's Summary just printed, e.g. ghcr.io/<you>/my-board:latest}
+    image: ${MEITH_IMAGE:?set this to the image the build workflow's Summary just printed, e.g. ghcr.io/<you>/meith-board:latest}
     environment:
       COMMUNITY_ROLE: migrate
       DATABASE_URL: postgres://community:$SERVICE_PASSWORD_POSTGRES@postgres:5432/community
@@ -43,7 +43,7 @@ services:
     restart: 'no'
 
   web:
-    image: ${MEITH_IMAGE:?set this to the image the build workflow's Summary just printed, e.g. ghcr.io/<you>/my-board:latest}
+    image: ${MEITH_IMAGE:?set this to the image the build workflow's Summary just printed, e.g. ghcr.io/<you>/meith-board:latest}
     restart: unless-stopped
     mem_limit: ${WEB_MEM_LIMIT:-1g}
     cpus: ${WEB_CPUS:-2}
