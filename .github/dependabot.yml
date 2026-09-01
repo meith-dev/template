@@ -1,7 +1,8 @@
 # Keeps this board's GitHub Actions current: one weekly pull request that
-# bumps the actions pinned in .github/workflows. Upgrading Meith itself is
-# separate and deliberate — see README.md, "Upgrading" — because the board's
-# `next` pin has to move together with `@meith/web` rather than on its own.
+# bumps the actions pinned in .github/workflows. Meith itself is updated
+# separately, by .github/workflows/update.yml — see README.md, "Upgrading" —
+# because the board's `next` pin has to move together with `@meith/web`
+# rather than on its own.
 version: 2
 updates:
   - package-ecosystem: github-actions
